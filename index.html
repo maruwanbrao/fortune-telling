@@ -155,64 +155,155 @@
     margin-bottom:clamp(28px, 6vw, 44px);
   }
 
-  /* Crystal orb — doubles as the single round button. Sizes scale fluidly with viewport. */
-  .orb-wrap{
+  /* ---------- เซียมซี — fortune stick tube (replaces the round orb button) ---------- */
+  .siamsi-scene{
     position:relative;
-    width:clamp(160px, 42vw, 240px);
-    height:clamp(160px, 42vw, 240px);
+    width:clamp(140px, 34vw, 200px);
     margin:0 auto clamp(20px, 5vw, 32px);
-    display:flex;align-items:center;justify-content:center;
   }
-  .orb-ring{
+
+  .siamsi-btn{
+    all:unset;
+    display:block;
+    position:relative;
+    width:100%;
+    cursor:pointer;
+    touch-action:manipulation;
+    padding-top:46%; /* room for sticks to poke above the tube */
+  }
+  .siamsi-btn:focus-visible .tube{
+    outline:2px solid var(--gold-soft);
+    outline-offset:6px;
+  }
+
+  .sticks{
     position:absolute;
-    inset:0;
-    border:1px solid var(--line);
-    border-radius:50%;
+    left:0; right:0;
+    bottom:30%;
+    height:70%;
+    z-index:2;
     pointer-events:none;
   }
-  .orb-ring.r1{ inset:10%; }
-  .orb-ring.r2{ inset:0; border-style:dashed; opacity:0.5; }
-  @media (prefers-reduced-motion: no-preference){
-    .orb-ring.r2{ animation: spin 40s linear infinite; }
-    .orb-ring.r1{ animation: spin 60s linear infinite reverse; }
+  .stick{
+    position:absolute;
+    bottom:0;
+    width:5.5%;
+    height:62%;
+    background:linear-gradient(180deg, #efe0c0 0%, #c9a86a 100%);
+    border-radius:3px 3px 1px 1px;
+    box-shadow:0 2px 4px rgba(0,0,0,0.25);
+    transform-origin:bottom center;
   }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
-
-  .orb-btn{
-    width:75%;
-    aspect-ratio:1/1;
+  .stick:nth-child(1){ left:14%; height:52%; transform:rotate(-9deg); }
+  .stick:nth-child(2){ left:24%; height:60%; transform:rotate(-5deg); }
+  .stick:nth-child(3){ left:34%; height:48%; transform:rotate(-2deg); }
+  .stick:nth-child(4){ left:44%; height:64%; transform:rotate(1deg); }
+  .stick:nth-child(5){ left:54%; height:50%; transform:rotate(4deg); }
+  .stick:nth-child(6){ left:64%; height:58%; transform:rotate(7deg); }
+  .stick:nth-child(7){ left:74%; height:46%; transform:rotate(10deg); }
+  .stick.winner{
+    left:44%;
+    height:64%;
+    background:linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 100%);
+    box-shadow:0 0 10px rgba(217,178,106,0.6);
+    z-index:3;
+  }
+  .stick.winner::after{
+    content:'';
+    position:absolute;
+    top:-7px; left:50%;
+    transform:translateX(-50%);
+    width:9px;height:9px;
     border-radius:50%;
-    border:none;
-    cursor:pointer;
-    position:relative;
-    background: radial-gradient(circle at 35% 30%, #efe0c0 0%, #b79cf0 35%, #4a3480 75%, #1c1436 100%);
-    box-shadow: 0 0 40px rgba(155,127,217,0.55), inset 0 0 30px rgba(255,255,255,0.25);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    gap:6px;
-    font-family:'Sarabun', sans-serif;
-    font-weight:600;
-    color:var(--void);
-    transition: transform .25s ease, box-shadow .25s ease;
-    touch-action:manipulation;
+    background:var(--gold-soft);
+    box-shadow:0 0 12px 3px rgba(240,217,168,0.85);
+    opacity:0;
+    transition:opacity .3s ease;
   }
-  .orb-btn .emoji{ font-size:clamp(1.7rem, 6vw, 2.2rem); line-height:1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
-  .orb-btn .label{ font-size:clamp(0.88rem, 3vw, 1.02rem); letter-spacing:0.5px; color:#241a45; }
+
   @media (prefers-reduced-motion: no-preference){
-    .orb-btn{ animation: pulse-glow 4s ease-in-out infinite; }
+    .siamsi-scene.shaking .stick{ animation: jitter 0.32s ease-in-out infinite; }
+    .siamsi-scene.shaking .stick:nth-child(2){ animation-delay:.03s; }
+    .siamsi-scene.shaking .stick:nth-child(3){ animation-delay:.06s; }
+    .siamsi-scene.shaking .stick:nth-child(4){ animation-delay:.02s; }
+    .siamsi-scene.shaking .stick:nth-child(5){ animation-delay:.08s; }
+    .siamsi-scene.shaking .stick:nth-child(6){ animation-delay:.04s; }
+    .siamsi-scene.shaking .stick:nth-child(7){ animation-delay:.07s; }
+    .siamsi-scene.shaking .stick.winner{ animation:jitter 0.32s ease-in-out infinite; animation-delay:.05s; }
+    .siamsi-scene.shaking .tube{ animation: shakeTube 0.32s ease-in-out infinite; }
   }
-  @keyframes pulse-glow{
-    0%,100%{ box-shadow: 0 0 40px rgba(155,127,217,0.5), inset 0 0 30px rgba(255,255,255,0.22); }
-    50%{ box-shadow: 0 0 66px rgba(217,178,106,0.55), inset 0 0 34px rgba(255,255,255,0.32); }
+  @keyframes jitter{
+    0%,100%{ transform:translateY(0) rotate(var(--r,0deg)); }
+    50%{ transform:translateY(-6%) rotate(calc(var(--r,0deg) + 3deg)); }
   }
-  .orb-btn:hover{
-    transform:scale(1.04);
-    box-shadow: 0 0 70px rgba(217,178,106,0.6), inset 0 0 34px rgba(255,255,255,0.32);
+  @keyframes shakeTube{
+    0%,100%{ transform:rotate(0deg); }
+    25%{ transform:rotate(-3deg); }
+    75%{ transform:rotate(3deg); }
   }
-  .orb-btn:active{ transform:scale(0.97); }
-  .orb-btn:focus-visible{ outline:2px solid var(--gold-soft); outline-offset:6px; }
+
+  .siamsi-scene.popped .stick.winner{
+    animation:popOut .6s cubic-bezier(.2,.8,.25,1.15) forwards;
+  }
+  .siamsi-scene.popped .stick.winner::after{ opacity:1; }
+  .siamsi-scene.popped .stick:not(.winner){
+    transition:transform .35s ease, opacity .35s ease;
+    opacity:0.75;
+  }
+  @keyframes popOut{
+    0%{ transform:rotate(1deg) translateY(0) scale(1); }
+    55%{ transform:rotate(0deg) translateY(-58%) scale(1.06); }
+    100%{ transform:rotate(0deg) translateY(-46%) scale(1.04); }
+  }
+
+  .tube{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:66%;
+    border-radius:14% 14% 20% 20% / 10% 10% 16% 16%;
+    background:
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.14) 0 3%, transparent 3% 9%),
+      linear-gradient(180deg, #8a2436 0%, #661a29 55%, #3c0e16 100%);
+    box-shadow:
+      0 16px 34px rgba(0,0,0,0.45),
+      inset -10px 0 18px rgba(0,0,0,0.35),
+      inset 10px 0 14px rgba(255,255,255,0.06);
+    overflow:hidden;
+    z-index:1;
+    transition: box-shadow .25s ease;
+  }
+  .siamsi-btn:hover .tube{
+    box-shadow:
+      0 18px 40px rgba(0,0,0,0.5),
+      inset -10px 0 18px rgba(0,0,0,0.35),
+      inset 10px 0 14px rgba(255,255,255,0.08),
+      0 0 30px rgba(217,178,106,0.25);
+  }
+  .tube-band{
+    position:absolute;
+    left:0; right:0;
+    height:9%;
+    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
+  }
+  .tube-band.top{ top:14%; }
+  .tube-band.bottom{ bottom:10%; }
+  .tube-opening{
+    position:absolute;
+    top:0; left:8%; right:8%;
+    height:16%;
+    border-radius:50%;
+    background:radial-gradient(ellipse at center, #2a0a10 0%, #4a1420 65%, #6e1c2c 100%);
+    border:1px solid rgba(217,178,106,0.45);
+  }
+
+  .siamsi-shadow{
+    position:absolute;
+    left:50%; bottom:-6%;
+    transform:translateX(-50%);
+    width:70%; height:14px;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,0.45), transparent 70%);
+    filter:blur(2px);
+  }
 
   .hint{
     margin-top:6px;
@@ -456,6 +547,46 @@
     .card{ padding:36px 22px 30px; }
     header{ padding:22px 5vw; }
   }
+
+  @media (max-width:360px){
+    .siamsi-scene{ width:clamp(120px, 40vw, 150px); }
+    .hero p.sub{ font-size:0.88rem; }
+    .card{ padding:30px 16px 26px; }
+    .card-title{ font-size:1.4rem; }
+  }
+
+  /* Short / landscape viewports (e.g. phone rotated) — trim vertical rhythm so content fits */
+  @media (max-height:560px) and (orientation:landscape){
+    .hero{ min-height:auto; padding:24px 6vw 32px; }
+    .eyebrow{ margin-bottom:12px; }
+    .hero h1{ font-size:clamp(2.2rem, 7vw, 3.4rem); margin-bottom:10px; }
+    .hero p.sub{ margin-bottom:16px; }
+    .siamsi-scene{ width:clamp(110px, 20vw, 150px); margin-bottom:14px; }
+    .card{ max-height:82vh; padding:26px 22px 22px; }
+  }
+
+  /* Header/footer respect device notches and home-indicator areas */
+  header{
+    padding-left:max(6vw, env(safe-area-inset-left));
+    padding-right:max(6vw, env(safe-area-inset-right));
+  }
+  footer{
+    padding-left:max(6vw, env(safe-area-inset-left));
+    padding-right:max(6vw, env(safe-area-inset-right));
+    padding-bottom:max(60px, env(safe-area-inset-bottom));
+  }
+
+  /* Large desktop / wide screens — keep content from feeling lost in empty space */
+  @media (min-width:1440px){
+    .hero p.sub{ font-size:1.08rem; }
+    .siamsi-scene{ width:220px; }
+  }
+
+  /* Coarse pointer (touch) devices — comfortably large tap targets */
+  @media (pointer:coarse){
+    .close-btn{ font-size:1.5rem; padding:10px 12px; }
+    .btn-secondary, .btn-primary{ padding:14px 24px; }
+  }
 </style>
 </head>
 <body>
@@ -477,16 +608,27 @@
     <h1>จันทราทำนาย</h1>
     <p class="sub">ปล่อยใจให้สงบสักครู่ แล้วแตะดวงจันทร์ ให้แสงนำทางคำตอบที่คุณกำลังตามหา</p>
 
-    <div class="orb-wrap">
-      <div class="orb-ring r2"></div>
-      <div class="orb-ring r1"></div>
-      <button class="orb-btn" id="openBtn">
-        <span class="emoji">🔮</span>
-        <span class="label">ดูดวง</span>
+    <div class="siamsi-scene" id="siamsiScene">
+      <button class="siamsi-btn" id="openBtn" aria-label="เขย่าเซียมซีเพื่อเปิดคำทำนาย">
+        <div class="sticks">
+          <div class="stick"></div>
+          <div class="stick"></div>
+          <div class="stick"></div>
+          <div class="stick winner"></div>
+          <div class="stick"></div>
+          <div class="stick"></div>
+          <div class="stick"></div>
+        </div>
+        <div class="tube">
+          <div class="tube-opening"></div>
+          <div class="tube-band top"></div>
+          <div class="tube-band bottom"></div>
+        </div>
       </button>
+      <div class="siamsi-shadow"></div>
     </div>
 
-    <div class="hint">แตะดวงจันทร์เพื่อสุ่มคำทำนาย · ใหม่ทุกครั้งที่เปิด</div>
+    <div class="hint">เขย่ากระบอกเซียมซีเพื่อสุ่มคำทำนาย · ใหม่ทุกครั้งที่เปิด</div>
   </section>
 </main>
 
@@ -760,6 +902,9 @@
   const closeBtn = document.getElementById('closeBtn');
   const closeBtn2 = document.getElementById('closeBtn2');
   const rerollBtn = document.getElementById('rerollBtn');
+  const siamsiScene = document.getElementById('siamsiScene');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let isShaking = false;
 
   function openModal(){
     drawFortune();
@@ -768,9 +913,29 @@
   }
   function closeModal(){
     overlay.classList.remove('open');
+    siamsiScene.classList.remove('shaking','popped');
   }
 
-  openBtn.addEventListener('click', openModal);
+  function shakeThenOpen(){
+    if(isShaking) return;
+    isShaking = true;
+    if(reduceMotion){
+      openModal();
+      isShaking = false;
+      return;
+    }
+    siamsiScene.classList.add('shaking');
+    setTimeout(()=>{
+      siamsiScene.classList.remove('shaking');
+      siamsiScene.classList.add('popped');
+      setTimeout(()=>{
+        openModal();
+        isShaking = false;
+      }, 550);
+    }, 650);
+  }
+
+  openBtn.addEventListener('click', shakeThenOpen);
   closeBtn.addEventListener('click', closeModal);
   closeBtn2.addEventListener('click', closeModal);
   rerollBtn.addEventListener('click', ()=>{ drawFortune(); spawnSparkles(); });
