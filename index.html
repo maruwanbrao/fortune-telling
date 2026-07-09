@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>จันทรา — คำทำนายประจำวัน</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,8 +23,12 @@
   }
 
   *{margin:0;padding:0;box-sizing:border-box;}
+  *{-webkit-tap-highlight-color:transparent;}
 
   html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+  }
 
   body{
     background: radial-gradient(ellipse at 50% -10%, #251c48 0%, var(--deep) 45%, var(--void) 100%);
@@ -32,7 +36,10 @@
     font-family:'Sarabun', sans-serif;
     overflow-x:hidden;
     min-height:100vh;
+    min-height:100svh;
     position:relative;
+    text-size-adjust:100%;
+    -webkit-text-size-adjust:100%;
   }
 
   /* ---------- Starfield ---------- */
@@ -107,18 +114,19 @@
   /* ---------- Hero ---------- */
   .hero{
     min-height:100vh;
+    min-height:100svh;
     display:flex;
     flex-direction:column;
     align-items:center;
     justify-content:center;
     text-align:center;
-    padding:40px 6vw 60px;
+    padding:max(40px, env(safe-area-inset-top)) 6vw max(60px, env(safe-area-inset-bottom));
     position:relative;
   }
 
   .eyebrow{
     font-family:'Cinzel', serif;
-    font-size:0.7rem;
+    font-size:clamp(0.6rem, 1.6vw, 0.7rem);
     letter-spacing:5px;
     color:var(--gold);
     text-transform:uppercase;
@@ -129,7 +137,7 @@
   .hero h1{
     font-family:'Charmonman', cursive;
     font-weight:700;
-    font-size:clamp(3rem, 9vw, 6.2rem);
+    font-size:clamp(2.6rem, 9vw, 6.2rem);
     line-height:1.15;
     background:linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 55%, var(--rose) 100%);
     -webkit-background-clip:text;
@@ -140,28 +148,30 @@
   }
 
   .hero p.sub{
-    max-width:480px;
+    max-width:min(480px, 86vw);
     color:var(--ink-muted);
-    font-size:1.02rem;
+    font-size:clamp(0.92rem, 2.4vw, 1.02rem);
     line-height:1.8;
-    margin-bottom:44px;
+    margin-bottom:clamp(28px, 6vw, 44px);
   }
 
-  /* Crystal orb — doubles as the single round button */
+  /* Crystal orb — doubles as the single round button. Sizes scale fluidly with viewport. */
   .orb-wrap{
     position:relative;
-    width:240px;height:240px;
-    margin:0 auto 32px;
+    width:clamp(160px, 42vw, 240px);
+    height:clamp(160px, 42vw, 240px);
+    margin:0 auto clamp(20px, 5vw, 32px);
     display:flex;align-items:center;justify-content:center;
   }
   .orb-ring{
     position:absolute;
+    inset:0;
     border:1px solid var(--line);
     border-radius:50%;
     pointer-events:none;
   }
-  .orb-ring.r1{ width:216px;height:216px; }
-  .orb-ring.r2{ width:240px;height:240px; border-style:dashed; opacity:0.5; }
+  .orb-ring.r1{ inset:10%; }
+  .orb-ring.r2{ inset:0; border-style:dashed; opacity:0.5; }
   @media (prefers-reduced-motion: no-preference){
     .orb-ring.r2{ animation: spin 40s linear infinite; }
     .orb-ring.r1{ animation: spin 60s linear infinite reverse; }
@@ -169,7 +179,8 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
   .orb-btn{
-    width:180px;height:180px;
+    width:75%;
+    aspect-ratio:1/1;
     border-radius:50%;
     border:none;
     cursor:pointer;
@@ -185,9 +196,10 @@
     font-weight:600;
     color:var(--void);
     transition: transform .25s ease, box-shadow .25s ease;
+    touch-action:manipulation;
   }
-  .orb-btn .emoji{ font-size:2.2rem; line-height:1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
-  .orb-btn .label{ font-size:1.02rem; letter-spacing:0.5px; color:#241a45; }
+  .orb-btn .emoji{ font-size:clamp(1.7rem, 6vw, 2.2rem); line-height:1; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25)); }
+  .orb-btn .label{ font-size:clamp(0.88rem, 3vw, 1.02rem); letter-spacing:0.5px; color:#241a45; }
   @media (prefers-reduced-motion: no-preference){
     .orb-btn{ animation: pulse-glow 4s ease-in-out infinite; }
   }
