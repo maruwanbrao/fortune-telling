@@ -155,7 +155,7 @@
     margin-bottom:clamp(28px, 6vw, 44px);
   }
 
-  /* ---------- เซียมซี — fortune stick tube (replaces the round orb button) ---------- */
+  /* ---------- เซียมซี — fortune stick tube, flat icon style (replaces the round orb) ---------- */
   .siamsi-scene{
     position:relative;
     width:clamp(140px, 34vw, 200px);
@@ -169,67 +169,48 @@
     width:100%;
     cursor:pointer;
     touch-action:manipulation;
-    padding-top:46%; /* room for sticks to poke above the tube */
+    border-radius:20px;
   }
-  .siamsi-btn:focus-visible .tube{
+  .siamsi-btn svg{
+    display:block;
+    width:100%;
+    height:auto;
+    overflow:visible;
+  }
+  .siamsi-btn:focus-visible{
     outline:2px solid var(--gold-soft);
-    outline-offset:6px;
+    outline-offset:8px;
   }
 
-  .sticks{
-    position:absolute;
-    left:0; right:0;
-    bottom:30%;
-    height:70%;
-    z-index:2;
-    pointer-events:none;
+  /* Sticks: flat tan shafts with gold pointed tips, fanned around a shared pivot */
+  .siamsi-svg .stick{
+    transform-box:fill-box;
+    transform-origin:50% 100%;
   }
-  .stick{
-    position:absolute;
-    bottom:0;
-    width:5.5%;
-    height:62%;
-    background:linear-gradient(180deg, #efe0c0 0%, #c9a86a 100%);
-    border-radius:3px 3px 1px 1px;
-    box-shadow:0 2px 4px rgba(0,0,0,0.25);
-    transform-origin:bottom center;
-  }
-  .stick:nth-child(1){ left:14%; height:52%; transform:rotate(-9deg); }
-  .stick:nth-child(2){ left:24%; height:60%; transform:rotate(-5deg); }
-  .stick:nth-child(3){ left:34%; height:48%; transform:rotate(-2deg); }
-  .stick:nth-child(4){ left:44%; height:64%; transform:rotate(1deg); }
-  .stick:nth-child(5){ left:54%; height:50%; transform:rotate(4deg); }
-  .stick:nth-child(6){ left:64%; height:58%; transform:rotate(7deg); }
-  .stick:nth-child(7){ left:74%; height:46%; transform:rotate(10deg); }
-  .stick.winner{
-    left:44%;
-    height:64%;
-    background:linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 100%);
-    box-shadow:0 0 10px rgba(217,178,106,0.6);
-    z-index:3;
-  }
-  .stick.winner::after{
-    content:'';
-    position:absolute;
-    top:-7px; left:50%;
-    transform:translateX(-50%);
-    width:9px;height:9px;
-    border-radius:50%;
-    background:var(--gold-soft);
-    box-shadow:0 0 12px 3px rgba(240,217,168,0.85);
+  .stick-shaft{ fill:#f3d9a4; stroke:#1c1c1c; stroke-width:4; }
+  .stick-tip{ fill:#f4c430; stroke:#1c1c1c; stroke-width:4; stroke-linejoin:round; }
+  .glow-dot{
+    fill:#fff2c2;
     opacity:0;
+    filter:drop-shadow(0 0 6px rgba(247,207,92,0.9));
     transition:opacity .3s ease;
   }
 
+  /* Tube: bright flat red cup with two black bands and a rivet dot, like the reference icon */
+  .siamsi-svg .tube{
+    transform-box:fill-box;
+    transform-origin:50% 100%;
+    transition:filter .25s ease;
+  }
+  .siamsi-btn:hover .siamsi-svg .tube{
+    filter:drop-shadow(0 0 14px rgba(217,178,106,0.4));
+  }
+  .tube-body{ fill:#ef4b3a; stroke:#1c1c1c; stroke-width:6; }
+  .tube-band{ fill:#1c1c1c; }
+  .tube-dot{ fill:#1c1c1c; }
+
   @media (prefers-reduced-motion: no-preference){
     .siamsi-scene.shaking .stick{ animation: jitter 0.32s ease-in-out infinite; }
-    .siamsi-scene.shaking .stick:nth-child(2){ animation-delay:.03s; }
-    .siamsi-scene.shaking .stick:nth-child(3){ animation-delay:.06s; }
-    .siamsi-scene.shaking .stick:nth-child(4){ animation-delay:.02s; }
-    .siamsi-scene.shaking .stick:nth-child(5){ animation-delay:.08s; }
-    .siamsi-scene.shaking .stick:nth-child(6){ animation-delay:.04s; }
-    .siamsi-scene.shaking .stick:nth-child(7){ animation-delay:.07s; }
-    .siamsi-scene.shaking .stick.winner{ animation:jitter 0.32s ease-in-out infinite; animation-delay:.05s; }
     .siamsi-scene.shaking .tube{ animation: shakeTube 0.32s ease-in-out infinite; }
   }
   @keyframes jitter{
@@ -245,9 +226,12 @@
   .siamsi-scene.popped .stick.winner{
     animation:popOut .6s cubic-bezier(.2,.8,.25,1.15) forwards;
   }
-  .siamsi-scene.popped .stick.winner::after{ opacity:1; }
+  .siamsi-scene.popped .stick.winner .glow-dot{ opacity:1; }
+  .siamsi-scene.popped .stick.winner .stick-tip{
+    filter:drop-shadow(0 0 10px rgba(244,196,48,0.85));
+  }
   .siamsi-scene.popped .stick:not(.winner){
-    transition:transform .35s ease, opacity .35s ease;
+    transition:opacity .35s ease;
     opacity:0.75;
   }
   @keyframes popOut{
@@ -256,49 +240,9 @@
     100%{ transform:rotate(0deg) translateY(-46%) scale(1.04); }
   }
 
-  .tube{
-    position:absolute;
-    left:0; right:0; bottom:0;
-    height:66%;
-    border-radius:14% 14% 20% 20% / 10% 10% 16% 16%;
-    background:
-      repeating-linear-gradient(90deg, rgba(0,0,0,0.14) 0 3%, transparent 3% 9%),
-      linear-gradient(180deg, #8a2436 0%, #661a29 55%, #3c0e16 100%);
-    box-shadow:
-      0 16px 34px rgba(0,0,0,0.45),
-      inset -10px 0 18px rgba(0,0,0,0.35),
-      inset 10px 0 14px rgba(255,255,255,0.06);
-    overflow:hidden;
-    z-index:1;
-    transition: box-shadow .25s ease;
-  }
-  .siamsi-btn:hover .tube{
-    box-shadow:
-      0 18px 40px rgba(0,0,0,0.5),
-      inset -10px 0 18px rgba(0,0,0,0.35),
-      inset 10px 0 14px rgba(255,255,255,0.08),
-      0 0 30px rgba(217,178,106,0.25);
-  }
-  .tube-band{
-    position:absolute;
-    left:0; right:0;
-    height:9%;
-    background:linear-gradient(180deg, var(--gold-soft), var(--gold));
-  }
-  .tube-band.top{ top:14%; }
-  .tube-band.bottom{ bottom:10%; }
-  .tube-opening{
-    position:absolute;
-    top:0; left:8%; right:8%;
-    height:16%;
-    border-radius:50%;
-    background:radial-gradient(ellipse at center, #2a0a10 0%, #4a1420 65%, #6e1c2c 100%);
-    border:1px solid rgba(217,178,106,0.45);
-  }
-
   .siamsi-shadow{
-    position:absolute;
-    left:50%; bottom:-6%;
+    position:relative;
+    left:50%; margin-top:-4%;
     transform:translateX(-50%);
     width:70%; height:14px;
     background:radial-gradient(ellipse at center, rgba(0,0,0,0.45), transparent 70%);
@@ -610,20 +554,59 @@
 
     <div class="siamsi-scene" id="siamsiScene">
       <button class="siamsi-btn" id="openBtn" aria-label="เขย่าเซียมซีเพื่อเปิดคำทำนาย">
-        <div class="sticks">
-          <div class="stick"></div>
-          <div class="stick"></div>
-          <div class="stick"></div>
-          <div class="stick winner"></div>
-          <div class="stick"></div>
-          <div class="stick"></div>
-          <div class="stick"></div>
-        </div>
-        <div class="tube">
-          <div class="tube-opening"></div>
-          <div class="tube-band top"></div>
-          <div class="tube-band bottom"></div>
-        </div>
+        <svg class="siamsi-svg" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g class="sticks">
+            <g transform="rotate(-28 100 150)">
+              <g class="stick" style="animation-delay:.03s">
+                <rect class="stick-shaft" x="95" y="110" width="10" height="58" rx="4"/>
+                <path class="stick-tip" d="M100,88 L107,110 L100,116 L93,110 Z"/>
+              </g>
+            </g>
+            <g transform="rotate(-19 100 150)">
+              <g class="stick" style="animation-delay:.07s">
+                <rect class="stick-shaft" x="95" y="98" width="10" height="70" rx="4"/>
+                <path class="stick-tip" d="M100,76 L107,98 L100,104 L93,98 Z"/>
+              </g>
+            </g>
+            <g transform="rotate(-9 100 150)">
+              <g class="stick" style="animation-delay:.01s">
+                <rect class="stick-shaft" x="95" y="112" width="10" height="56" rx="4"/>
+                <path class="stick-tip" d="M100,90 L107,112 L100,118 L93,112 Z"/>
+              </g>
+            </g>
+            <g transform="rotate(0 100 150)">
+              <g class="stick winner" style="animation-delay:.05s">
+                <rect class="stick-shaft" x="95" y="93" width="10" height="75" rx="4"/>
+                <path class="stick-tip" d="M100,71 L107,93 L100,99 L93,93 Z"/>
+                <circle class="glow-dot" cx="100" cy="65" r="5"/>
+              </g>
+            </g>
+            <g transform="rotate(9 100 150)">
+              <g class="stick" style="animation-delay:.08s">
+                <rect class="stick-shaft" x="95" y="108" width="10" height="60" rx="4"/>
+                <path class="stick-tip" d="M100,86 L107,108 L100,114 L93,108 Z"/>
+              </g>
+            </g>
+            <g transform="rotate(19 100 150)">
+              <g class="stick" style="animation-delay:.02s">
+                <rect class="stick-shaft" x="95" y="102" width="10" height="66" rx="4"/>
+                <path class="stick-tip" d="M100,80 L107,102 L100,108 L93,102 Z"/>
+              </g>
+            </g>
+            <g transform="rotate(28 100 150)">
+              <g class="stick" style="animation-delay:.06s">
+                <rect class="stick-shaft" x="95" y="114" width="10" height="54" rx="4"/>
+                <path class="stick-tip" d="M100,92 L107,114 L100,120 L93,114 Z"/>
+              </g>
+            </g>
+          </g>
+          <g class="tube">
+            <rect class="tube-body" x="46" y="150" width="108" height="96" rx="16"/>
+            <circle class="tube-dot" cx="64" cy="163" r="4"/>
+            <rect class="tube-band" x="46" y="177" width="108" height="9"/>
+            <rect class="tube-band" x="46" y="213" width="108" height="9"/>
+          </g>
+        </svg>
       </button>
       <div class="siamsi-shadow"></div>
     </div>
