@@ -155,10 +155,10 @@
     margin-bottom:clamp(28px, 6vw, 44px);
   }
 
-  /* ---------- เซียมซี — fortune stick tube, flat icon style (replaces the round orb) ---------- */
+  /* ---------- เซียมซี — fortune stick tube, soft-shaded 3D style, rocks as one rigid piece ---------- */
   .siamsi-scene{
     position:relative;
-    width:clamp(140px, 34vw, 200px);
+    width:clamp(150px, 36vw, 210px);
     margin:0 auto clamp(20px, 5vw, 32px);
   }
 
@@ -176,63 +176,65 @@
     width:100%;
     height:auto;
     overflow:visible;
+    filter:drop-shadow(0 18px 22px rgba(0,0,0,0.45));
   }
   .siamsi-btn:focus-visible{
     outline:2px solid var(--gold-soft);
     outline-offset:8px;
   }
 
-  /* Sticks: flat tan shafts with gold pointed tips, fanned around a shared pivot */
+  /* The whole cup+sticks rock together as one rigid piece, like tilting a cup to shake it */
+  .siamsi-svg .rig{
+    transform-box:fill-box;
+    transform-origin:50% 96%;
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .siamsi-svg .rig{ animation: idleSway 4.5s ease-in-out infinite; }
+    .siamsi-scene.shaking .rig{ animation: rock 0.5s ease-in-out infinite; }
+  }
+  @keyframes idleSway{
+    0%,100%{ transform:rotate(-1.6deg); }
+    50%{ transform:rotate(1.6deg); }
+  }
+  @keyframes rock{
+    0%,100%{ transform:rotate(-10deg); }
+    50%{ transform:rotate(10deg); }
+  }
+
   .siamsi-svg .stick{
     transform-box:fill-box;
     transform-origin:50% 100%;
   }
-  .stick-shaft{ fill:#f3d9a4; stroke:#1c1c1c; stroke-width:4; }
-  .stick-tip{ fill:#f4c430; stroke:#1c1c1c; stroke-width:4; stroke-linejoin:round; }
+  .stick-shaft{ fill:url(#shaftGrad); }
+  .stick-tip{ fill:url(#tipGrad); }
+  .stick-num{
+    fill:#fbe6c8;
+    font-family:'Sarabun', sans-serif;
+    font-weight:700;
+    font-size:8px;
+    text-anchor:middle;
+  }
   .glow-dot{
     fill:#fff2c2;
     opacity:0;
-    filter:drop-shadow(0 0 6px rgba(247,207,92,0.9));
+    filter:drop-shadow(0 0 7px rgba(247,207,92,0.95));
     transition:opacity .3s ease;
   }
 
-  /* Tube: bright flat red cup with two black bands and a rivet dot, like the reference icon */
-  .siamsi-svg .tube{
-    transform-box:fill-box;
-    transform-origin:50% 100%;
-    transition:filter .25s ease;
-  }
-  .siamsi-btn:hover .siamsi-svg .tube{
-    filter:drop-shadow(0 0 14px rgba(217,178,106,0.4));
-  }
-  .tube-body{ fill:#ef4b3a; stroke:#1c1c1c; stroke-width:6; }
-  .tube-band{ fill:#1c1c1c; }
-  .tube-dot{ fill:#1c1c1c; }
-
-  @media (prefers-reduced-motion: no-preference){
-    .siamsi-scene.shaking .stick{ animation: jitter 0.32s ease-in-out infinite; }
-    .siamsi-scene.shaking .tube{ animation: shakeTube 0.32s ease-in-out infinite; }
-  }
-  @keyframes jitter{
-    0%,100%{ transform:translateY(0) rotate(var(--r,0deg)); }
-    50%{ transform:translateY(-6%) rotate(calc(var(--r,0deg) + 3deg)); }
-  }
-  @keyframes shakeTube{
-    0%,100%{ transform:rotate(0deg); }
-    25%{ transform:rotate(-3deg); }
-    75%{ transform:rotate(3deg); }
-  }
+  .tube-body{ fill:url(#cupGrad); }
+  .tube-rim{ fill:#4d0f1a; opacity:0.85; }
+  .tube-highlight{ fill:rgba(255,255,255,0.14); }
 
   .siamsi-scene.popped .stick.winner{
     animation:popOut .6s cubic-bezier(.2,.8,.25,1.15) forwards;
   }
   .siamsi-scene.popped .stick.winner .glow-dot{ opacity:1; }
   .siamsi-scene.popped .stick.winner .stick-tip{
-    filter:drop-shadow(0 0 10px rgba(244,196,48,0.85));
+    filter:drop-shadow(0 0 10px rgba(225,75,63,0.85));
   }
   .siamsi-scene.popped .stick:not(.winner){
     transition:opacity .35s ease;
-    opacity:0.75;
+    opacity:0.8;
   }
   @keyframes popOut{
     0%{ transform:rotate(1deg) translateY(0) scale(1); }
@@ -244,8 +246,8 @@
     position:relative;
     left:50%; margin-top:-4%;
     transform:translateX(-50%);
-    width:70%; height:14px;
-    background:radial-gradient(ellipse at center, rgba(0,0,0,0.45), transparent 70%);
+    width:64%; height:14px;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,0.4), transparent 70%);
     filter:blur(2px);
   }
 
@@ -555,56 +557,82 @@
     <div class="siamsi-scene" id="siamsiScene">
       <button class="siamsi-btn" id="openBtn" aria-label="เขย่าเซียมซีเพื่อเปิดคำทำนาย">
         <svg class="siamsi-svg" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <g class="sticks">
-            <g transform="rotate(-28 100 150)">
-              <g class="stick" style="animation-delay:.03s">
-                <rect class="stick-shaft" x="95" y="110" width="10" height="58" rx="4"/>
-                <path class="stick-tip" d="M100,88 L107,110 L100,116 L93,110 Z"/>
+          <defs>
+            <linearGradient id="cupGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#b23347"/>
+              <stop offset="30%" stop-color="#8f1f33"/>
+              <stop offset="65%" stop-color="#6c1526"/>
+              <stop offset="100%" stop-color="#4a0f1a"/>
+            </linearGradient>
+            <linearGradient id="shaftGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#e8ad3c"/>
+              <stop offset="45%" stop-color="#f3c765"/>
+              <stop offset="100%" stop-color="#b9791d"/>
+            </linearGradient>
+            <linearGradient id="tipGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e75a4a"/>
+              <stop offset="100%" stop-color="#9c1f1f"/>
+            </linearGradient>
+          </defs>
+
+          <g class="rig">
+            <g class="sticks">
+              <g transform="rotate(-28 100 150)">
+                <g class="stick" style="animation-delay:.03s">
+                  <rect class="stick-shaft" x="95" y="110" width="10" height="58" rx="4"/>
+                  <text class="stick-num" x="100" y="122">7</text>
+                  <path class="stick-tip" d="M100,94 L106,110 L100,115 L94,110 Z"/>
+                </g>
+              </g>
+              <g transform="rotate(-19 100 150)">
+                <g class="stick" style="animation-delay:.07s">
+                  <rect class="stick-shaft" x="95" y="98" width="10" height="70" rx="4"/>
+                  <text class="stick-num" x="100" y="110">15</text>
+                  <path class="stick-tip" d="M100,82 L106,98 L100,103 L94,98 Z"/>
+                </g>
+              </g>
+              <g transform="rotate(-9 100 150)">
+                <g class="stick" style="animation-delay:.01s">
+                  <rect class="stick-shaft" x="95" y="112" width="10" height="56" rx="4"/>
+                  <text class="stick-num" x="100" y="124">3</text>
+                  <path class="stick-tip" d="M100,96 L106,112 L100,117 L94,112 Z"/>
+                </g>
+              </g>
+              <g transform="rotate(0 100 150)">
+                <g class="stick winner" style="animation-delay:.05s">
+                  <rect class="stick-shaft" x="95" y="93" width="10" height="75" rx="4"/>
+                  <text class="stick-num" x="100" y="105">21</text>
+                  <path class="stick-tip" d="M100,77 L106,93 L100,98 L94,93 Z"/>
+                  <circle class="glow-dot" cx="100" cy="71" r="5"/>
+                </g>
+              </g>
+              <g transform="rotate(9 100 150)">
+                <g class="stick" style="animation-delay:.08s">
+                  <rect class="stick-shaft" x="95" y="108" width="10" height="60" rx="4"/>
+                  <text class="stick-num" x="100" y="120">9</text>
+                  <path class="stick-tip" d="M100,92 L106,108 L100,113 L94,108 Z"/>
+                </g>
+              </g>
+              <g transform="rotate(19 100 150)">
+                <g class="stick" style="animation-delay:.02s">
+                  <rect class="stick-shaft" x="95" y="102" width="10" height="66" rx="4"/>
+                  <text class="stick-num" x="100" y="114">18</text>
+                  <path class="stick-tip" d="M100,86 L106,102 L100,107 L94,102 Z"/>
+                </g>
+              </g>
+              <g transform="rotate(28 100 150)">
+                <g class="stick" style="animation-delay:.06s">
+                  <rect class="stick-shaft" x="95" y="114" width="10" height="54" rx="4"/>
+                  <text class="stick-num" x="100" y="126">5</text>
+                  <path class="stick-tip" d="M100,98 L106,114 L100,119 L94,114 Z"/>
+                </g>
               </g>
             </g>
-            <g transform="rotate(-19 100 150)">
-              <g class="stick" style="animation-delay:.07s">
-                <rect class="stick-shaft" x="95" y="98" width="10" height="70" rx="4"/>
-                <path class="stick-tip" d="M100,76 L107,98 L100,104 L93,98 Z"/>
-              </g>
+            <g class="tube">
+              <ellipse class="tube-rim" cx="100" cy="150" rx="56" ry="10"/>
+              <rect class="tube-body" x="44" y="150" width="112" height="98" rx="18"/>
+              <rect class="tube-highlight" x="54" y="162" width="13" height="76" rx="6.5"/>
             </g>
-            <g transform="rotate(-9 100 150)">
-              <g class="stick" style="animation-delay:.01s">
-                <rect class="stick-shaft" x="95" y="112" width="10" height="56" rx="4"/>
-                <path class="stick-tip" d="M100,90 L107,112 L100,118 L93,112 Z"/>
-              </g>
-            </g>
-            <g transform="rotate(0 100 150)">
-              <g class="stick winner" style="animation-delay:.05s">
-                <rect class="stick-shaft" x="95" y="93" width="10" height="75" rx="4"/>
-                <path class="stick-tip" d="M100,71 L107,93 L100,99 L93,93 Z"/>
-                <circle class="glow-dot" cx="100" cy="65" r="5"/>
-              </g>
-            </g>
-            <g transform="rotate(9 100 150)">
-              <g class="stick" style="animation-delay:.08s">
-                <rect class="stick-shaft" x="95" y="108" width="10" height="60" rx="4"/>
-                <path class="stick-tip" d="M100,86 L107,108 L100,114 L93,108 Z"/>
-              </g>
-            </g>
-            <g transform="rotate(19 100 150)">
-              <g class="stick" style="animation-delay:.02s">
-                <rect class="stick-shaft" x="95" y="102" width="10" height="66" rx="4"/>
-                <path class="stick-tip" d="M100,80 L107,102 L100,108 L93,102 Z"/>
-              </g>
-            </g>
-            <g transform="rotate(28 100 150)">
-              <g class="stick" style="animation-delay:.06s">
-                <rect class="stick-shaft" x="95" y="114" width="10" height="54" rx="4"/>
-                <path class="stick-tip" d="M100,92 L107,114 L100,120 L93,114 Z"/>
-              </g>
-            </g>
-          </g>
-          <g class="tube">
-            <rect class="tube-body" x="46" y="150" width="108" height="96" rx="16"/>
-            <circle class="tube-dot" cx="64" cy="163" r="4"/>
-            <rect class="tube-band" x="46" y="177" width="108" height="9"/>
-            <rect class="tube-band" x="46" y="213" width="108" height="9"/>
           </g>
         </svg>
       </button>
