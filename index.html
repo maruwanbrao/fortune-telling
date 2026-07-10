@@ -139,11 +139,13 @@
     font-weight:700;
     font-size:clamp(2.6rem, 9vw, 6.2rem);
     line-height:1.15;
-    background:linear-gradient(180deg, var(--gold-soft) 0%, var(--gold) 55%, var(--rose) 100%);
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
-    text-shadow: 0 0 60px rgba(217,178,106,0.25);
+    /* NOTE: do not use background-clip:text + transparent color here. That gradient-text
+       trick forces some Chromium builds onto a rendering path that breaks complex-script
+       shaping for Myanmar (stacked vowel signs render as detached loops until the text is
+       selected, which repaints via the normal shaped path). A solid color + glow keeps the
+       gold look while guaranteeing correct glyph shaping. */
+    color:var(--gold-soft);
+    text-shadow: 0 0 46px rgba(217,178,106,0.55), 0 0 90px rgba(217,178,106,0.25);
     margin-bottom:18px;
   }
 
@@ -186,19 +188,46 @@
   /* The whole cup+sticks rock together as one rigid piece, like tilting a cup to shake it */
   .siamsi-svg .rig{
     transform-box:fill-box;
-    transform-origin:50% 96%;
+    transform-origin:50% 92%;
   }
   @media (prefers-reduced-motion: no-preference){
     .siamsi-svg .rig{ animation: idleSway 4.5s ease-in-out infinite; }
-    .siamsi-scene.shaking .rig{ animation: rock 0.5s ease-in-out infinite; }
+    .siamsi-scene.shaking .rig{ animation: rock 0.68s cubic-bezier(.36,.07,.19,.97) 1; }
   }
   @keyframes idleSway{
-    0%,100%{ transform:rotate(-1.6deg); }
-    50%{ transform:rotate(1.6deg); }
+    0%,100%{ transform:rotate(-1.6deg) translateY(0); }
+    50%{ transform:rotate(1.6deg) translateY(-2px); }
   }
+  /* A rattling, decelerating shake — like a hand actually jerking the cup side to side */
   @keyframes rock{
-    0%,100%{ transform:rotate(-10deg); }
-    50%{ transform:rotate(10deg); }
+    0%{   transform:rotate(0deg)    translate(0,0); }
+    6%{   transform:rotate(-11deg)  translate(-4px,-2px); }
+    14%{  transform:rotate(9deg)    translate(4px,-3px); }
+    22%{  transform:rotate(-12deg)  translate(-5px,-1px); }
+    30%{  transform:rotate(10deg)   translate(4px,-3px); }
+    39%{  transform:rotate(-9deg)   translate(-3px,-1px); }
+    48%{  transform:rotate(8deg)    translate(3px,-2px); }
+    58%{  transform:rotate(-6deg)   translate(-2px,-1px); }
+    68%{  transform:rotate(5deg)    translate(2px,-1px); }
+    79%{  transform:rotate(-3deg)   translate(-1px,0); }
+    90%{  transform:rotate(1.5deg)  translate(0,0); }
+    100%{ transform:rotate(0deg)    translate(0,0); }
+  }
+
+  /* Individual sticks jitter slightly out of phase with each other while shaking, so the
+     bundle rattles instead of moving as one dead-flat slab */
+  .siamsi-svg .stick-jitter{
+    transform-box:fill-box;
+    transform-origin:50% 100%;
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .siamsi-scene.shaking .stick-jitter{
+      animation:jitter var(--jd, 0.24s) ease-in-out var(--jdelay, 0s) 3;
+    }
+  }
+  @keyframes jitter{
+    0%,100%{ transform:rotate(0deg) translateY(0); }
+    50%{ transform:rotate(var(--jr, 3deg)) translateY(-2px); }
   }
 
   .siamsi-svg .stick{
@@ -206,12 +235,14 @@
     transform-origin:50% 100%;
   }
   .stick-shaft{ fill:url(#shaftGrad); }
+  .stick-shine{ fill:rgba(255,244,220,0.35); }
+  .stick-band{ fill:url(#bandGrad); }
   .stick-tip{ fill:url(#tipGrad); }
   .stick-num{
-    fill:#fbe6c8;
+    fill:#f4dfa8;
     font-family:'Noto Sans Myanmar', sans-serif;
     font-weight:700;
-    font-size:8px;
+    font-size:7px;
     text-anchor:middle;
   }
   .glow-dot{
@@ -222,33 +253,74 @@
   }
 
   .tube-body{ fill:url(#cupGrad); }
-  .tube-rim{ fill:#4d0f1a; opacity:0.85; }
-  .tube-highlight{ fill:rgba(255,255,255,0.14); }
+  .tube-rim{ fill:url(#rimGrad); }
+  .tube-rim-inner{ fill:#2c0810; opacity:0.9; }
+  .tube-highlight{ fill:rgba(255,255,255,0.16); }
+  .tube-highlight-soft{ fill:rgba(255,255,255,0.07); }
+  .tube-rivet{ fill:#e9c07a; opacity:0.55; }
 
+  .palm{ fill:url(#skinGrad); }
+  .finger{ fill:url(#skinGrad); stroke:rgba(58,28,12,0.25); stroke-width:0.6; }
+  .palm-crease{ fill:none; stroke:rgba(90,50,25,0.3); stroke-width:1; stroke-linecap:round; }
+  .thumb{ fill:url(#thumbGrad); stroke:rgba(58,28,12,0.2); stroke-width:0.6; }
+  .thumb-crease{ fill:none; stroke:rgba(90,50,25,0.3); stroke-width:1; stroke-linecap:round; }
+  .thumb-nail{ fill:#eeccb4; opacity:0.75; }
+  .finger-crease{ fill:none; stroke:rgba(90,50,25,0.32); stroke-width:0.8; stroke-linecap:round; }
+  .finger-nail{ fill:#eeccb4; opacity:0.6; }
+  .knuckle-shade{ fill:rgba(90,50,25,0.14); }
+
+  /* Winning stick actually rises up out of the bundle, tips over the rim, and comes to
+     rest leaning out — like a real เซียมซี stick that has fallen clear of the others */
   .siamsi-scene.popped .stick.winner{
-    animation:popOut .6s cubic-bezier(.2,.8,.25,1.15) forwards;
+    animation:fallOut .85s cubic-bezier(.22,.75,.25,1) forwards;
   }
   .siamsi-scene.popped .stick.winner .glow-dot{ opacity:1; }
   .siamsi-scene.popped .stick.winner .stick-tip{
     filter:drop-shadow(0 0 10px rgba(225,75,63,0.85));
   }
   .siamsi-scene.popped .stick:not(.winner){
-    transition:opacity .35s ease;
-    opacity:0.8;
+    transition:opacity .4s ease, transform .4s ease;
+    opacity:0.75;
+    transform:translateY(2%);
   }
-  @keyframes popOut{
-    0%{ transform:rotate(1deg) translateY(0) scale(1); }
-    55%{ transform:rotate(0deg) translateY(-58%) scale(1.06); }
-    100%{ transform:rotate(0deg) translateY(-46%) scale(1.04); }
+  @keyframes fallOut{
+    0%{   transform:rotate(1deg)   translateY(0)    scale(1); }
+    32%{  transform:rotate(-8deg)  translateY(-74%) scale(1.05); }
+    55%{  transform:rotate(22deg)  translateY(-90%) scale(1.05); }
+    75%{  transform:rotate(58deg)  translateY(-82%) scale(1.02); }
+    88%{  transform:rotate(74deg)  translateY(-72%) scale(1); }
+    100%{ transform:rotate(70deg)  translateY(-75%) scale(1); }
+  }
+
+  /* Little puff of motion dust where the winning stick settles */
+  .land-mote{
+    fill:var(--gold-soft);
+    opacity:0;
+  }
+  .siamsi-scene.popped .land-mote{
+    animation:moteBurst .7s ease-out forwards;
+    animation-delay:.62s;
+  }
+  @keyframes moteBurst{
+    0%{ opacity:0; transform:scale(0.3) translateY(0); }
+    35%{ opacity:0.9; }
+    100%{ opacity:0; transform:scale(1.4) translateY(-10px); }
   }
 
   .siamsi-shadow{
     position:relative;
-    left:50%; margin-top:-4%;
+    left:50%; margin-top:-2%;
     transform:translateX(-50%);
-    width:64%; height:14px;
-    background:radial-gradient(ellipse at center, rgba(0,0,0,0.4), transparent 70%);
+    width:70%; height:16px;
+    background:radial-gradient(ellipse at center, rgba(0,0,0,0.45), transparent 70%);
     filter:blur(2px);
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .siamsi-scene.shaking .siamsi-shadow{ animation:shadowPulse 0.68s ease-in-out 1; }
+  }
+  @keyframes shadowPulse{
+    0%,100%{ transform:translateX(-50%) scaleX(1); opacity:1; }
+    50%{ transform:translateX(-50%) scaleX(0.82); opacity:0.7; }
   }
 
   .hint{
@@ -549,82 +621,167 @@
 
     <div class="siamsi-scene" id="siamsiScene">
       <button class="siamsi-btn" id="openBtn" aria-label="ကံစမ်းတံများကို လှုပ်ရှားပြီး ကံဟောချက်ကို ဖွင့်ပါ">
-        <svg class="siamsi-svg" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <svg class="siamsi-svg" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
             <linearGradient id="cupGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#b23347"/>
-              <stop offset="30%" stop-color="#8f1f33"/>
-              <stop offset="65%" stop-color="#6c1526"/>
-              <stop offset="100%" stop-color="#4a0f1a"/>
+              <stop offset="0%" stop-color="#c23f4f"/>
+              <stop offset="22%" stop-color="#9c2536"/>
+              <stop offset="55%" stop-color="#7a1826"/>
+              <stop offset="80%" stop-color="#5c1119"/>
+              <stop offset="100%" stop-color="#3f0b12"/>
+            </linearGradient>
+            <linearGradient id="rimGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#7a1421"/>
+              <stop offset="100%" stop-color="#3a0810"/>
             </linearGradient>
             <linearGradient id="shaftGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stop-color="#e8ad3c"/>
-              <stop offset="45%" stop-color="#f3c765"/>
-              <stop offset="100%" stop-color="#b9791d"/>
+              <stop offset="0%" stop-color="#e4c691"/>
+              <stop offset="45%" stop-color="#d1a869"/>
+              <stop offset="100%" stop-color="#a97e42"/>
+            </linearGradient>
+            <linearGradient id="bandGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#f6dd9a"/>
+              <stop offset="50%" stop-color="#e0b355"/>
+              <stop offset="100%" stop-color="#a97423"/>
             </linearGradient>
             <linearGradient id="tipGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#e75a4a"/>
-              <stop offset="100%" stop-color="#9c1f1f"/>
+              <stop offset="100%" stop-color="#8a1a1a"/>
+            </linearGradient>
+            <linearGradient id="skinGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#e7b48c"/>
+              <stop offset="100%" stop-color="#c9895f"/>
+            </linearGradient>
+            <linearGradient id="thumbGrad" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0%" stop-color="#d99a6c"/>
+              <stop offset="100%" stop-color="#f0c39a"/>
             </linearGradient>
           </defs>
 
           <g class="rig">
             <g class="sticks">
-              <g transform="rotate(-28 100 150)">
-                <g class="stick" style="animation-delay:.03s">
-                  <rect class="stick-shaft" x="95" y="110" width="10" height="58" rx="4"/>
-                  <text class="stick-num" x="100" y="122">7</text>
-                  <path class="stick-tip" d="M100,94 L106,110 L100,115 L94,110 Z"/>
-                </g>
-              </g>
-              <g transform="rotate(-19 100 150)">
-                <g class="stick" style="animation-delay:.07s">
-                  <rect class="stick-shaft" x="95" y="98" width="10" height="70" rx="4"/>
-                  <text class="stick-num" x="100" y="110">15</text>
-                  <path class="stick-tip" d="M100,82 L106,98 L100,103 L94,98 Z"/>
-                </g>
-              </g>
-              <g transform="rotate(-9 100 150)">
-                <g class="stick" style="animation-delay:.01s">
-                  <rect class="stick-shaft" x="95" y="112" width="10" height="56" rx="4"/>
-                  <text class="stick-num" x="100" y="124">3</text>
-                  <path class="stick-tip" d="M100,96 L106,112 L100,117 L94,112 Z"/>
-                </g>
-              </g>
-              <g transform="rotate(0 100 150)">
-                <g class="stick winner" style="animation-delay:.05s">
-                  <rect class="stick-shaft" x="95" y="93" width="10" height="75" rx="4"/>
-                  <text class="stick-num" id="winnerStickNum" x="100" y="105">21</text>
-                  <path class="stick-tip" d="M100,77 L106,93 L100,98 L94,93 Z"/>
-                  <circle class="glow-dot" cx="100" cy="71" r="5"/>
-                </g>
-              </g>
-              <g transform="rotate(9 100 150)">
-                <g class="stick" style="animation-delay:.08s">
-                  <rect class="stick-shaft" x="95" y="108" width="10" height="60" rx="4"/>
-                  <text class="stick-num" x="100" y="120">9</text>
-                  <path class="stick-tip" d="M100,92 L106,108 L100,113 L94,108 Z"/>
-                </g>
-              </g>
-              <g transform="rotate(19 100 150)">
-                <g class="stick" style="animation-delay:.02s">
-                  <rect class="stick-shaft" x="95" y="102" width="10" height="66" rx="4"/>
-                  <text class="stick-num" x="100" y="114">18</text>
-                  <path class="stick-tip" d="M100,86 L106,102 L100,107 L94,102 Z"/>
-                </g>
-              </g>
-              <g transform="rotate(28 100 150)">
-                <g class="stick" style="animation-delay:.06s">
-                  <rect class="stick-shaft" x="95" y="114" width="10" height="54" rx="4"/>
-                  <text class="stick-num" x="100" y="126">5</text>
-                  <path class="stick-tip" d="M100,98 L106,114 L100,119 L94,114 Z"/>
-                </g>
-              </g>
+              <g transform="rotate(-33.0 100 150)"><g class="stick-jitter" style="--jr:-4deg;--jd:.22s;--jdelay:.02s"><g class="stick" style="animation-delay:0.05s">
+                <rect class="stick-shaft" x="94" y="112" width="12" height="56" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="115" width="2.2" height="48" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,117 L93.5,95.225 Q93.5,91 100,91 Q106.5,91 106.5,95.225 L106.5,117 Z"/>
+                <rect class="stick-band" x="93.6" y="110" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="105">3</text>
+                <circle class="glow-dot" cx="100" cy="88" r="5"/>
+              </g></g></g>
+              <g transform="rotate(-27.5 100 150)"><g class="stick-jitter" style="--jr:3deg;--jd:.26s;--jdelay:.09s"><g class="stick" style="animation-delay:0.11s">
+                <rect class="stick-shaft" x="94" y="100" width="12" height="68" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="103" width="2.2" height="60" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,105 L93.5,83.225 Q93.5,79 100,79 Q106.5,79 106.5,83.225 L106.5,105 Z"/>
+                <rect class="stick-band" x="93.6" y="98" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="93">17</text>
+                <circle class="glow-dot" cx="100" cy="76" r="5"/>
+              </g></g></g>
+              <g transform="rotate(-22.0 100 150)"><g class="stick-jitter" style="--jr:-3deg;--jd:.19s;--jdelay:.04s"><g class="stick" style="animation-delay:0.01s">
+                <rect class="stick-shaft" x="94" y="115" width="12" height="53" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="118" width="2.2" height="45" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,120 L93.5,98.225 Q93.5,94 100,94 Q106.5,94 106.5,98.225 L106.5,120 Z"/>
+                <rect class="stick-band" x="93.6" y="113" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="108">9</text>
+                <circle class="glow-dot" cx="100" cy="91" r="5"/>
+              </g></g></g>
+              <g transform="rotate(-16.5 100 150)"><g class="stick-jitter" style="--jr:4deg;--jd:.24s;--jdelay:.11s"><g class="stick" style="animation-delay:0.14s">
+                <rect class="stick-shaft" x="94" y="95" width="12" height="73" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="98" width="2.2" height="65" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,100 L93.5,78.225 Q93.5,74 100,74 Q106.5,74 106.5,78.225 L106.5,100 Z"/>
+                <rect class="stick-band" x="93.6" y="93" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="88">24</text>
+                <circle class="glow-dot" cx="100" cy="71" r="5"/>
+              </g></g></g>
+              <g transform="rotate(-11.0 100 150)"><g class="stick-jitter" style="--jr:-2.5deg;--jd:.21s;--jdelay:.06s"><g class="stick" style="animation-delay:0.08s">
+                <rect class="stick-shaft" x="94" y="108" width="12" height="60" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="111" width="2.2" height="52" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,113 L93.5,91.225 Q93.5,87 100,87 Q106.5,87 106.5,91.225 L106.5,113 Z"/>
+                <rect class="stick-band" x="93.6" y="106" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="101">6</text>
+                <circle class="glow-dot" cx="100" cy="84" r="5"/>
+              </g></g></g>
+              <g transform="rotate(-5.5 100 150)"><g class="stick-jitter" style="--jr:3.5deg;--jd:.18s;--jdelay:.13s"><g class="stick" style="animation-delay:0.02s">
+                <rect class="stick-shaft" x="94" y="118" width="12" height="50" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="121" width="2.2" height="42" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,123 L93.5,101.225 Q93.5,97 100,97 Q106.5,97 106.5,101.225 L106.5,123 Z"/>
+                <rect class="stick-band" x="93.6" y="116" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="111">13</text>
+                <circle class="glow-dot" cx="100" cy="94" r="5"/>
+              </g></g></g>
+              <g transform="rotate(0.0 100 150)"><g class="stick-jitter" style="--jr:-4deg;--jd:.25s;--jdelay:.01s"><g class="stick winner" style="animation-delay:0.06s">
+                <rect class="stick-shaft" x="94" y="90" width="12" height="78" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="93" width="2.2" height="70" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,95 L93.5,73.225 Q93.5,69 100,69 Q106.5,69 106.5,73.225 L106.5,95 Z"/>
+                <rect class="stick-band" x="93.6" y="88" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="83">21</text>
+                <circle class="glow-dot" cx="100" cy="66" r="5"/>
+              </g></g></g>
+              <g transform="rotate(5.5 100 150)"><g class="stick-jitter" style="--jr:2.5deg;--jd:.2s;--jdelay:.08s"><g class="stick" style="animation-delay:0.12s">
+                <rect class="stick-shaft" x="94" y="110" width="12" height="58" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="113" width="2.2" height="50" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,115 L93.5,93.225 Q93.5,89 100,89 Q106.5,89 106.5,93.225 L106.5,115 Z"/>
+                <rect class="stick-band" x="93.6" y="108" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="103">11</text>
+                <circle class="glow-dot" cx="100" cy="86" r="5"/>
+              </g></g></g>
+              <g transform="rotate(11.0 100 150)"><g class="stick-jitter" style="--jr:-3deg;--jd:.23s;--jdelay:.03s"><g class="stick" style="animation-delay:0.04s">
+                <rect class="stick-shaft" x="94" y="102" width="12" height="66" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="105" width="2.2" height="58" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,107 L93.5,85.225 Q93.5,81 100,81 Q106.5,81 106.5,85.225 L106.5,107 Z"/>
+                <rect class="stick-band" x="93.6" y="100" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="95">27</text>
+                <circle class="glow-dot" cx="100" cy="78" r="5"/>
+              </g></g></g>
+              <g transform="rotate(16.5 100 150)"><g class="stick-jitter" style="--jr:3deg;--jd:.19s;--jdelay:.1s"><g class="stick" style="animation-delay:0.13s">
+                <rect class="stick-shaft" x="94" y="116" width="12" height="52" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="119" width="2.2" height="44" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,121 L93.5,99.225 Q93.5,95 100,95 Q106.5,95 106.5,99.225 L106.5,121 Z"/>
+                <rect class="stick-band" x="93.6" y="114" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="109">4</text>
+                <circle class="glow-dot" cx="100" cy="92" r="5"/>
+              </g></g></g>
+              <g transform="rotate(22.0 100 150)"><g class="stick-jitter" style="--jr:-3.5deg;--jd:.27s;--jdelay:.05s"><g class="stick" style="animation-delay:0.09s">
+                <rect class="stick-shaft" x="94" y="97" width="12" height="71" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="100" width="2.2" height="63" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,102 L93.5,80.225 Q93.5,76 100,76 Q106.5,76 106.5,80.225 L106.5,102 Z"/>
+                <rect class="stick-band" x="93.6" y="95" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="90">19</text>
+                <circle class="glow-dot" cx="100" cy="73" r="5"/>
+              </g></g></g>
+              <g transform="rotate(27.5 100 150)"><g class="stick-jitter" style="--jr:2deg;--jd:.22s;--jdelay:.12s"><g class="stick" style="animation-delay:0.03s">
+                <rect class="stick-shaft" x="94" y="112" width="12" height="56" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="115" width="2.2" height="48" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,117 L93.5,95.225 Q93.5,91 100,91 Q106.5,91 106.5,95.225 L106.5,117 Z"/>
+                <rect class="stick-band" x="93.6" y="110" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="105">8</text>
+                <circle class="glow-dot" cx="100" cy="88" r="5"/>
+              </g></g></g>
+              <g transform="rotate(33.0 100 150)"><g class="stick-jitter" style="--jr:-2.5deg;--jd:.2s;--jdelay:.07s"><g class="stick" style="animation-delay:0.1s">
+                <rect class="stick-shaft" x="94" y="105" width="12" height="63" rx="5"/>
+                <rect class="stick-shine" x="98.9" y="108" width="2.2" height="55" rx="1.1"/>
+                <path class="stick-tip" d="M93.5,110 L93.5,88.225 Q93.5,84 100,84 Q106.5,84 106.5,88.225 L106.5,110 Z"/>
+                <rect class="stick-band" x="93.6" y="103" width="12.8" height="3" rx="1.4"/>
+                <text class="stick-num" x="100" y="98">15</text>
+                <circle class="glow-dot" cx="100" cy="81" r="5"/>
+              </g></g></g>
             </g>
+
+            <!-- gold motes that puff up where the winning stick settles -->
+            <g class="land-motes">
+              <circle class="land-mote" cx="128" cy="98" r="2.4"/>
+              <circle class="land-mote" cx="136" cy="106" r="1.8"/>
+              <circle class="land-mote" cx="121" cy="108" r="1.6"/>
+              <circle class="land-mote" cx="132" cy="88" r="1.4"/>
+            </g>
+
             <g class="tube">
-              <ellipse class="tube-rim" cx="100" cy="150" rx="56" ry="10"/>
-              <rect class="tube-body" x="44" y="150" width="112" height="98" rx="18"/>
-              <rect class="tube-highlight" x="54" y="162" width="13" height="76" rx="6.5"/>
+              <ellipse class="tube-rim" cx="100" cy="150" rx="56" ry="11"/>
+              <ellipse class="tube-rim-inner" cx="100" cy="149" rx="47" ry="7"/>
+              <rect class="tube-body" x="44" y="150" width="112" height="98" rx="16"/>
+              <rect class="tube-highlight" x="53" y="163" width="13" height="76" rx="6.5"/>
+              <rect class="tube-highlight-soft" x="122" y="166" width="9" height="68" rx="4.5"/>
+              <circle class="tube-rivet" cx="82" cy="192" r="2"/>
+              <circle class="tube-rivet" cx="93" cy="207" r="1.4"/>
             </g>
           </g>
         </svg>
@@ -720,7 +877,7 @@
     document.getElementById('ratingBox').innerHTML =
       '<span class="stars" style="color:' + meta.color + '">' + starsStr + '</span>';
 
-    const winnerNumEl = document.getElementById('winnerStickNum');
+    const winnerNumEl = document.querySelector('.stick.winner .stick-num');
     if(winnerNumEl) winnerNumEl.textContent = numStr;
   }
 
@@ -750,8 +907,17 @@
   const closeBtn2 = document.getElementById('closeBtn2');
   const rerollBtn = document.getElementById('rerollBtn');
   const siamsiScene = document.getElementById('siamsiScene');
+  const allSticks = Array.from(document.querySelectorAll('.siamsi-svg .stick'));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let isShaking = false;
+
+  // Picks a different physical stick to be "the one that falls out" each time,
+  // so it doesn't always look like the same stick wins.
+  function chooseWinnerStick(){
+    allSticks.forEach(s => s.classList.remove('winner'));
+    const pick = allSticks[Math.floor(Math.random() * allSticks.length)];
+    pick.classList.add('winner');
+  }
 
   function openModal(){
     drawFortune();
@@ -766,6 +932,7 @@
   function shakeThenOpen(){
     if(isShaking) return;
     isShaking = true;
+    chooseWinnerStick();
     if(reduceMotion){
       openModal();
       isShaking = false;
@@ -778,8 +945,8 @@
       setTimeout(()=>{
         openModal();
         isShaking = false;
-      }, 550);
-    }, 650);
+      }, 700);
+    }, 680);
   }
 
   openBtn.addEventListener('click', shakeThenOpen);
