@@ -61,8 +61,8 @@
     .star{ animation: twinkle linear infinite; }
   }
   @keyframes twinkle{
-    0%,100%{opacity:0.15; transform:scale(1);}
-    50%{opacity:0.95; transform:scale(1.6);}
+    0%,100%{opacity:0.15; transform:scale(1);} 
+    50%{opacity:0.95; transform:scale(1.6);} 
   }
 
   .drift-particle{
@@ -77,11 +77,11 @@
     .drift-particle{ animation: drift 14s ease-in-out infinite; }
   }
   @keyframes drift{
-    0%{ transform:translateY(0) translateX(0); opacity:0;}
-    10%{opacity:0.6;}
-    50%{ transform:translateY(-140px) translateX(20px); }
-    90%{opacity:0;}
-    100%{ transform:translateY(-280px) translateX(-10px); opacity:0;}
+    0%{ transform:translateY(0) translateX(0); opacity:0;} 
+    10%{opacity:0.6;} 
+    50%{ transform:translateY(-140px) translateX(20px); } 
+    90%{opacity:0;} 
+    100%{ transform:translateY(-280px) translateX(-10px); opacity:0;} 
   }
 
   /* ---------- Layout ---------- */
@@ -447,7 +447,15 @@
     margin-bottom:26px;
     color:var(--ink-muted);
   }
-  .rating .stars{ color:var(--gold); letter-spacing:2px; }
+  .rating .stars{ color:var(--gold); letter-spacing:2px; display:inline-block; }
+
+  /* Star pulse animation (triggered on modal open and reroll) */
+  @keyframes starPulse{
+    0%{ transform:scale(1); text-shadow: none; }
+    40%{ transform:scale(1.16); text-shadow: 0 0 12px rgba(217,178,106,0.55); }
+    100%{ transform:scale(1); }
+  }
+  .stars.pulse{ animation: starPulse 850ms cubic-bezier(.2,.8,.2,1); }
 
   .card-actions{
     display:flex;
@@ -637,7 +645,7 @@
 </main>
 
 <footer>
-  * ဟောစာတမ်းအဖြေများသည်ဖျော်ဖြေရေးအတွက်သာရည်ရွယ်ပါသည်။
+  * ဟောစာတမ်းအဖြေများသည်ဖျော်ဖြေရေးအတွက်သာရည်ရွယ်ပါသည်。
 </footer>
 
 <div class="overlay" id="overlay">
@@ -739,6 +747,18 @@
     ratingWrap.appendChild(labelEl);
 
     ratingBoxEl.appendChild(ratingWrap);
+
+    // Trigger pulse animation on stars. Works for both initial open and reroll while modal is open.
+    // Use a tiny timeout to ensure element is in the DOM, then add the pulse class and remove after animation.
+    requestAnimationFrame(()=>{
+      // Force reflow then add class
+      starsEl.classList.remove('pulse');
+      // Small delay to ensure removal takes effect before re-adding (so reroll retriggers animation)
+      setTimeout(()=>{
+        starsEl.classList.add('pulse');
+      }, 8);
+    });
+    starsEl.addEventListener('animationend', ()=> starsEl.classList.remove('pulse'), { once: true });
 
     const winnerNumEl = document.getElementById('winnerStickNum');
     if(winnerNumEl) winnerNumEl.textContent = numStr;
