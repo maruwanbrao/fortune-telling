@@ -398,16 +398,6 @@
   @keyframes itemReveal{
     to{ opacity:1; transform:translateY(0); }
   }
-  .tier-badge{
-    display:inline-block;
-    margin:0 auto 18px;
-    padding:6px 18px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    font-size:0.8rem;
-    font-weight:600;
-    letter-spacing:0.5px;
-  }
   .fortune-text{
     text-align:left;
     font-size:0.96rem;
@@ -657,7 +647,6 @@
       <div class="card-title" id="cardTitle">ယနေ့အတွက် ‌ဟောစာတမ်း</div>
       <div class="card-sub" id="cardSub">ကံစမ်းတံ အမှတ်</div>
       <div class="stick-number-badge" id="stickNumberBadge">--</div>
-      <div class="tier-badge" id="tierBadge"></div>
       <div class="rating" id="ratingBox"></div>
       <div class="fortune-text" id="fortuneText"></div>
       <div class="card-actions">
@@ -724,11 +713,6 @@
 
     document.getElementById('stickNumberBadge').textContent = numStr;
     document.getElementById('cardSub').textContent = 'ကံစမ်းတံ အမှတ် ' + numStr;
-
-    const tierBadge = document.getElementById('tierBadge');
-    tierBadge.textContent = meta.label;
-    tierBadge.style.color = meta.color;
-    tierBadge.style.borderColor = meta.color;
 
     document.getElementById('fortuneText').textContent = f.content;
 
